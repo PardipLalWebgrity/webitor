@@ -135,7 +135,42 @@
      }
 
      return Math.round(hue); // base hue in degrees (0–360)
+   },
+
+   getPickerCoordinatesFromColor(rgb) {
+     const { r, g, b } = rgb;
+     const { s, v } = this.rgbToHsv(r, g, b);
+
+     const x = Math.round(s * this.colorAreaWidth);         // 0 → 200
+     const y = Math.round((1 - v) * this.colorAreaHeight);   // Brightness is inverted
+
+     return { x, y };
+   },
+
+   rgbToHsv(r, g, b) {
+     r /= 255;
+     g /= 255;
+     b /= 255;
+
+     const max = Math.max(r, g, b), min = Math.min(r, g, b);
+     const d = max - min;
+
+     let h = 0;
+     if (d !== 0) {
+       if (max === r) h = ((g - b) / d) % 6;
+       else if (max === g) h = (b - r) / d + 2;
+       else h = (r - g) / d + 4;
+       h *= 60;
+       if (h < 0) h += 360;
+     }
+
+     const s = max === 0 ? 0 : d / max;
+     const v = max;
+
+     return { h, s, v };
    }
+
+
 
 
  } 
@@ -158,10 +193,11 @@
    const x = e.clientX-colorAreaElRect.x;
    const y = e.clientY-colorAreaElRect.y;
    const color = COLOR.getColorAtPoint(x,y);
-   console.log(color);
+   document.body.style.backgroundColor = color.hex;
  })
 
-
+const color = COLOR.getPickerCoordinatesFromColor();
+console.log(color);
 
  
 </script> 
