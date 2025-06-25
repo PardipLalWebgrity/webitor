@@ -151,12 +151,12 @@
 
 
    // -----------------------------------------------------------
+
    /* accepts parameters
     * h  Object = {h:x, s:y, v:z}
     * OR
     * h, s, v
    */
-  
    HSVtoRGB(H, S, V) {
        let R,G,B, var_h, var_i, var_1, var_2, var_3, var_r, var_g, var_b;
        if ( S === 0 ) {
@@ -300,6 +300,11 @@
 
  } 
 
+
+
+
+
+
  const hueInputEl = document.querySelector('#hue-input');
  const colorAreaEl = document.querySelector('#color-area');
  const colorAreaElRect = colorAreaEl.getBoundingClientRect();
@@ -311,7 +316,7 @@
 
  hueInputEl.addEventListener('change', () => {
    const color = COLOR.getHueGradientColorAt(hueInputEl.value);
-   COLOR.baseHue = COLOR.getBaseHueFromColor(color.rgb);   
+   COLOR.baseHue = COLOR.getBaseHueFrom(color.rgb);   
  })
 
  colorAreaEl.addEventListener('pointerdown', (e)=>{
@@ -320,6 +325,9 @@
    const color = COLOR.getColorAtPoint(x,y);
    document.body.style.backgroundColor = color.hex;
  })
+
+
+
  
 </script> 
 
