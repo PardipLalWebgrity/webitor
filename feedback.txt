@@ -1,0 +1,1 @@
+* Remove html entity code & use svg icon. because entity code show different result in different os and browser.
