@@ -1,5 +1,5 @@
 
-* make all events word small characters when it import ( Component's index.js ) like,
+* make all events word small characters when it import ( Component's events folder's index.js ) like,
 import blur from './blur.js';
 export { 
 	blur,
