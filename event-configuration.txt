@@ -23,8 +23,28 @@ import * as Events from './events/index.js';
 					}	    
 	}
 
-
+	// individual component
 	_handleEvents(e){
 		props._eTarget = e.composedPath()[0];
 		Events[e.type]?._handler?.(e);
 	}
+
+	OR
+
+	// Custom element - One place
+	_handleEvents(e){
+	
+		if(this.tagName) {				
+				this._props._eTarget = e.composedPath()[0];			
+				this._events[e.type]?._handler?.(e);	
+		} else {
+				this.host._props._eTarget = e.composedPath()[0];	
+				this.host._events[e.type]?._handler?.(e);			
+		}
+
+	}
+	
+
+
+
+	I think, we can implement, throttle & debounce in one place wbtr-custom-element/index.js in _handleEvents
