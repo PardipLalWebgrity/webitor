@@ -1,1 +1,2 @@
 * Remove html entity code & use svg icon. because entity code show different result in different os and browser.
+* All popovers, style by part in popover mail style like header
