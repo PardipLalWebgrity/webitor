@@ -16,9 +16,10 @@ import * as Events from './events/index.js';
 
 					for(const event in Events) {
 							if(['pointerover','pointerout','transitionstart','transitionend'].includes(event)) {
-										this.shadowRoot.addEventListener(event, this._handleEvents);
+										this.shadowRoot.addEventListener(event, this._handleEvents.bind(this));
 							} else {
-										this.addEventListener(event, this._handleEvents);
+										this.addEventListener(event, this._handleEvents.bind(this));
+
 							}
 					}	    
 	}
