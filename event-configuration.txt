@@ -1,0 +1,31 @@
+
+* make all events word small characters when it import ( Component's index.js ) like,
+import blur from './blur.js';
+export { 
+	blur,
+}
+
+
+import * as Events from './events/index.js';
+
+	connectedCallback(){
+		this._eventsSetup(Events);
+	}
+
+	_eventsSetup(Events) {
+
+					for(const event in Events) {
+							if(['pointerover','pointerout','transitionstart','transitionend'].includes(event)) {
+										this.shadowRoot.addEventListener(event, this._handleEvents);
+							} else {
+										this.addEventListener(event, this._handleEvents);
+							}
+					}	    
+	}
+
+
+	_handleEvents(e){
+		props._eTarget = e.composedPath()[0];
+		const handler = Events[e.type];
+  	handler._handler(e);
+	}
