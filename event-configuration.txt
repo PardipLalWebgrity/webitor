@@ -26,6 +26,5 @@ import * as Events from './events/index.js';
 
 	_handleEvents(e){
 		props._eTarget = e.composedPath()[0];
-		const handler = Events[e.type];
-  	handler._handler(e);
+		Events[e.type]?._handler?.(e);
 	}
