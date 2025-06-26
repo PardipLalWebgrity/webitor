@@ -45,6 +45,6 @@ import * as Events from './events/index.js';
 	}
 	
 
-
+ 
 
 	I think, we can implement, throttle & debounce in one place wbtr-custom-element/index.js in _handleEvents
