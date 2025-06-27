@@ -5,4 +5,5 @@ Feedback & Docs
 * All popovers, style by part in popover mail style like header
 * Event import and export in events/index.js, must be lowercase latters.
 * In events/index.js, export only events, not another things.
+* if browser carsh, than indexedDB crash, what is solution.
 
