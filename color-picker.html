@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
+
 <body>
- <style>
-  *{padding: 0;margin: 0;box-sizing: border-box;}
+    <style>
+        *{padding: 0;margin: 0;box-sizing: border-box;}
   .color-area {width: 200px;height: 200px;margin: 5px;background:linear-gradient(to top, #000 0%, rgb(0 0 0 / 0) 100%),linear-gradient(to right, #fff 0%, rgb(255 255 255 / 0) 100%);background-color: red;}
   .hue{width: 200px;height: 30px;margin: 5px;background: linear-gradient( to right, #f00 0%, #ff0 16.66%, #0f0 33.33%, #0ff 50%, #00f 66.66%, #f0f 83.33%, rgb(255, 0, 0) 100% );position: relative;}
+  .alpha{width: 200px;height: 30px;margin: 5px;position: relative;background: linear-gradient(to right, rgba(247, 14, 14, 0) 0%, rgb(247, 14, 14) 100%), repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0% 0% / 10px 10px;}
 
   [type="range"]{position: absolute;width: 100%;height: 100%;top:0;left: 0;background: transparent;-webkit-appearance: none;appearance: none;border:none;padding: 0;}
   [type="range"]::-moz-range-thumb {width: 4px;height:28px;border:2px solid #fff;background: transparent;box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;}
@@ -18,318 +21,419 @@
 
 
  </style>
- 
-<div class="color-area" id="color-area"></div>
-<div class="hue">
- <input type="range" class="hue-input" id="hue-input">
-</div>
-
-
-<script>
-
- // Use RGB/A because all because CSS use it, mean programatically use rgba, hex. hex only show 1 place.
-
- const COLOR = {
-
-   colorAreaWidth: 200,
-   colorAreaHeight: 200,
-   baseHue: 0,
-
-   getColorAtPoint: function(x, y) {
-     // Normalize to 0-1 range
-     const s = Math.max(0, Math.min(1, x / this.colorAreaWidth));       // Saturation
-     const v = 1 - Math.max(0, Math.min(1, y / this.colorAreaHeight));  // Brightness/Value
-
-     // HSV to RGB conversion
-     const c = v * s;
-     const hPrime = this.baseHue / 60;
-     const xVal = c * (1 - Math.abs(hPrime % 2 - 1));
-     let r = 0, g = 0, b = 0;
-
-     if (hPrime >= 0 && hPrime < 1) {
-       r = c; g = xVal; b = 0;
-     } else if (hPrime < 2) {
-       r = xVal; g = c; b = 0;
-     } else if (hPrime < 3) {
-       r = 0; g = c; b = xVal;
-     } else if (hPrime < 4) {
-       r = 0; g = xVal; b = c;
-     } else if (hPrime < 5) {
-       r = xVal; g = 0; b = c;
-     } else if (hPrime <= 6) {
-       r = c; g = 0; b = xVal;
-     }
-
-     const m = v - c;
-     r = Math.round((r + m) * 255);
-     g = Math.round((g + m) * 255);
-     b = Math.round((b + m) * 255);
-
-     return {
-       rgb: `rgb(${r}, ${g}, ${b})`,
-       hex: '#' + [r, g, b].map(n => n.toString(16).padStart(2, '0')).join('')
-     };
-   },
-
-   getHueGradientColorAt(percent) {
-     const stops = [
-       { pct: 0,     color: [255,   0,   0] }, // red
-       { pct: 16.66, color: [255, 255,   0] }, // yellow
-       { pct: 33.33, color: [  0, 255,   0] }, // green
-       { pct: 50.00, color: [  0, 255, 255] }, // cyan
-       { pct: 66.66, color: [  0,   0, 255] }, // blue
-       { pct: 83.33, color: [255,   0, 255] }, // magenta
-       { pct: 100.0, color: [255,   0,   0] }  // red again
-     ];
-
-     // Clamp percentage
-     percent = Math.max(0, Math.min(100, percent));
-
-     // Find the two surrounding stops
-     for (let i = 0; i < stops.length - 1; i++) {
-       const stop1 = stops[i];
-       const stop2 = stops[i + 1];
-
-       if (percent >= stop1.pct && percent <= stop2.pct) {
-         const range = stop2.pct - stop1.pct;
-         const ratio = (percent - stop1.pct) / range;
-
-         const r = Math.round(stop1.color[0] + (stop2.color[0] - stop1.color[0]) * ratio);
-         const g = Math.round(stop1.color[1] + (stop2.color[1] - stop1.color[1]) * ratio);
-         const b = Math.round(stop1.color[2] + (stop2.color[2] - stop1.color[2]) * ratio);
-
-         return {
-           rgb: `rgb(${r}, ${g}, ${b})`,
-           hex: '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
-         };
-       }
-     }
-
-     // Fallback
-     return { rgb: 'rgb(255,0,0)', hex: '#ff0000' };
-   },
-
-   getBaseHueFrom(color) {
-     // Parse the RGB(A) string
-     const match = color.match(/rgba?\s*\(\s*(\d+),\s*(\d+),\s*(\d+)/i);
-     if (!match) return null;
-
-     const r = parseInt(match[1]) / 255;
-     const g = parseInt(match[2]) / 255;
-     const b = parseInt(match[3]) / 255;
-
-     const max = Math.max(r, g, b);
-     const min = Math.min(r, g, b);
-     const delta = max - min;
-
-     let hue = 0;
-
-     if (delta !== 0) {
-       if (max === r) {
-         hue = ((g - b) / delta) % 6;
-       } else if (max === g) {
-         hue = (b - r) / delta + 2;
-       } else if (max === b) {
-         hue = (r - g) / delta + 4;
-       }
-       hue *= 60;
-       if (hue < 0) hue += 360;
-     }
-
-     return Math.round(hue); // base hue in degrees (0–360)
-   },
-
-   getPickerCoordinatesFrom(rgb) {
-     const { r, g, b } = rgb;
-     const { s, v } = this.rgbToHsv(r, g, b);
-
-     const x = Math.round(s * this.colorAreaWidth);         // 0 → 200
-     const y = Math.round((1 - v) * this.colorAreaHeight);   // Brightness is inverted
-
-     return { x, y };
-   },
-
-
-   // -----------------------------------------------------------
-
-   /* accepts parameters
-    * h  Object = {h:x, s:y, v:z}
-    * OR
-    * h, s, v
-   */
-   HSVtoRGB(H, S, V) {
-       let R,G,B, var_h, var_i, var_1, var_2, var_3, var_r, var_g, var_b;
-       if ( S === 0 ) {
-           R = V * 255;
-           G = V * 255;
-           B = V * 255;
-       } else {
-           var_h = H * 6;
-           if ( var_h === 6 ) { var_h = 0; }      //H must be < 1
-           var_i = parseInt( var_h );            //Or ... var_i = floor( var_h )
-           var_1 = V * ( 1 - S );
-           var_2 = V * ( 1 - S * ( var_h - var_i ) );
-           var_3 = V * ( 1 - S * ( 1 - ( var_h - var_i ) ) );
-
-           if      ( var_i === 0 ) { var_r = V     ; var_g = var_3 ; var_b = var_1 }
-           else if ( var_i === 1 ) { var_r = var_2 ; var_g = V     ; var_b = var_1 }
-           else if ( var_i === 2 ) { var_r = var_1 ; var_g = V     ; var_b = var_3 }
-           else if ( var_i === 3 ) { var_r = var_1 ; var_g = var_2 ; var_b = V     }
-           else if ( var_i === 4 ) { var_r = var_3 ; var_g = var_1 ; var_b = V     }
-           else                   { var_r = V     ; var_g = var_1 ; var_b = var_2 }
-
-           R = parseInt(var_r * 255);
-           G = parseInt(var_g * 255);
-           B = parseInt(var_b * 255);
-       }
-       return { r: R, g: G, b: B };
-   },
-
-   RGBtoHSV(r, g, b) {
-       //R, G and B input range = 0 ÷ 255
-       //H, S and V output range = 0 ÷ 1.0
-
-       const var_R = ( r / 255 );
-       const var_G = ( g / 255 );
-       const var_B = ( b / 255 );
-
-       const var_Min = Math.min( var_R, var_G, var_B );   //Min. value of RGB
-       const var_Max = Math.max( var_R, var_G, var_B );    //Max. value of RGB
-       const del_Max = var_Max - var_Min;             //Delta RGB value
-
-       let V = var_Max;
-       let H, S;
-
-       if ( del_Max === 0 )                     //This is a gray, no chroma...
-       {
-           H = 0;
-           S = 0;
-       }
-       else                                    //Chromatic data...
-       {
-           S = del_Max / var_Max;
-
-           const del_R = ( ( ( var_Max - var_R ) / 6 ) + ( del_Max / 2 ) ) / del_Max;
-           const del_G = ( ( ( var_Max - var_G ) / 6 ) + ( del_Max / 2 ) ) / del_Max;
-           const del_B = ( ( ( var_Max - var_B ) / 6 ) + ( del_Max / 2 ) ) / del_Max;
-
-           if      ( var_R === var_Max ) { H = del_B - del_G; }
-           else if ( var_G === var_Max ) { H = ( 1 / 3 ) + del_R - del_B; }
-           else if ( var_B === var_Max ) { H = ( 2 / 3 ) + del_G - del_R; }
-
-           if ( H < 0 ) { H += 1; }
-           if ( H > 1 ) { H -= 1; }
-       }
-       return { h: H, s: S, v: V };
-   },
-
-   RGBtoHex(r, g, b) {
-       if (typeof r === 'object') {
-           g = r.g;
-           b = r.b;
-           r = r.r;
-       }
-       return '#' + this.toHex(parseInt(r)) + this.toHex(parseInt(g)) + this.toHex(parseInt(b));
-   },
-
-   hexToRGB(hex) {
-       var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-       hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-           return r + r + g + g + b + b;
-       });
-
-       let target;
-       if (hex.charAt(0) === '#') {
-           target = 7;
-       } else if (hex.charAt(0) !== '#') {
-           target = 6;
-       }
-
-       while(hex.length < target) {
-           hex += '0';
-       }
-
-       var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-       return result ? {
-           r: parseInt(result[1], 16),
-           g: parseInt(result[2], 16),
-           b: parseInt(result[3], 16)
-       } : null;
-   },
-
-   formatHex(val) {
-       if (val.charAt(0) !== '#') {
-           val = '#' + val;
-       }
-       while (val.length < 7) {
-           val += '0';
-       }
-       return val;
-   },
-
-   toHex(val) {
-       let hex = Number(val).toString(16);
-       if (hex.length < 2) {
-           hex = "0" + hex;
-       }
-       return hex;
-   },
-
-   rgbToHsv(r, g, b) {
-     r /= 255;
-     g /= 255;
-     b /= 255;
-
-     const max = Math.max(r, g, b), min = Math.min(r, g, b);
-     const d = max - min;
-
-     let h = 0;
-     if (d !== 0) {
-       if (max === r) h = ((g - b) / d) % 6;
-       else if (max === g) h = (b - r) / d + 2;
-       else h = (r - g) / d + 4;
-       h *= 60;
-       if (h < 0) h += 360;
-     }
-
-     const s = max === 0 ? 0 : d / max;
-     const v = max;
-
-     return { h, s, v };
-   },
-
- } 
-
-
-
-
-
-
- const hueInputEl = document.querySelector('#hue-input');
- const colorAreaEl = document.querySelector('#color-area');
- const colorAreaElRect = colorAreaEl.getBoundingClientRect();
-
- hueInputEl.addEventListener('input', () => {
-   const color = COLOR.getHueGradientColorAt(hueInputEl.value);
-   colorAreaEl.style.backgroundColor = color.hex;
- })
-
- hueInputEl.addEventListener('change', () => {
-   const color = COLOR.getHueGradientColorAt(hueInputEl.value);
-   COLOR.baseHue = COLOR.getBaseHueFrom(color.rgb);   
- })
-
- colorAreaEl.addEventListener('pointerdown', (e)=>{
-   const x = e.clientX-colorAreaElRect.x;
-   const y = e.clientY-colorAreaElRect.y;
-   const color = COLOR.getColorAtPoint(x,y);
-   document.body.style.backgroundColor = color.hex;
- })
-
-
-
- 
-</script> 
-
+    <div class="color-area" data-id="colorArea" data-event-id="color-area"></div>
+    <div class="hue" data-id="hue">
+        <input type="range" class="hue-input" data-id="hueInput" data-event-id="hue-input">
+    </div>
+    <div class="alpha" data-id="alpha">
+        <input type="range" class="alpha-input" data-id="alphaInput" data-event-id="alpha-input">
+    </div>
+    <label>RGBA</label>
+    <input type="number" data-id="r" data-input-id="rgb">
+    <input type="number" data-id="g" data-input-id="rgb">
+    <input type="number" data-id="b" data-input-id="rgb">
+    <br><br>
+    <label>Alpha</label>
+    <input type="number" data-id="a">
+    <br><br>
+    <label>HEX</label>
+    <input type="text" data-id="hex" data-input-id="hex">
+    <script>
+    // Use RGB/A because all because CSS use it, mean programatically use rgba, hex. hex only show 1 place.
+
+    const COLOR = {
+
+        els: {},
+
+        colorAreaWidth: 200,
+        colorAreaHeight: 200,
+        colorAreaElRect: 0,
+        baseHue: 0,
+        cc: null,
+
+        coloectElements: function() {
+            const els = document.querySelectorAll('[data-id]');
+            els.forEach((el) => {
+                this.els[el.dataset.id] = el;
+            })
+            console.log(this.els);
+        },
+
+        collectElsRect: function() {
+            this.colorAreaElRect = this.els.colorArea.getBoundingClientRect();
+        },
+
+        // Color Area
+        getColorAtPoint: function(x, y) {
+            // Normalize to 0-1 range
+            const s = Math.max(0, Math.min(1, x / this.colorAreaWidth)); // Saturation
+            const v = 1 - Math.max(0, Math.min(1, y / this.colorAreaHeight)); // Brightness/Value
+
+            // HSV to RGB conversion
+            const c = v * s;
+            const hPrime = this.baseHue / 60;
+            const xVal = c * (1 - Math.abs(hPrime % 2 - 1));
+            let r = 0,
+                g = 0,
+                b = 0;
+
+            if (hPrime >= 0 && hPrime < 1) {
+                r = c;
+                g = xVal;
+                b = 0;
+            } else if (hPrime < 2) {
+                r = xVal;
+                g = c;
+                b = 0;
+            } else if (hPrime < 3) {
+                r = 0;
+                g = c;
+                b = xVal;
+            } else if (hPrime < 4) {
+                r = 0;
+                g = xVal;
+                b = c;
+            } else if (hPrime < 5) {
+                r = xVal;
+                g = 0;
+                b = c;
+            } else if (hPrime <= 6) {
+                r = c;
+                g = 0;
+                b = xVal;
+            }
+
+            const m = v - c;
+            r = Math.round((r + m) * 255);
+            g = Math.round((g + m) * 255);
+            b = Math.round((b + m) * 255);
+
+            return this.cc = {
+                rgb: { r, g, b },
+                hex: '#' + [r, g, b].map(n => n.toString(16).padStart(2, '0')).join('')
+            };
+        },
+
+        getPickerCoordinatesFrom(rgb) {
+            const { r, g, b } = rgb;
+            const { s, v } = this.rgbToHsv(r, g, b);
+
+            const x = Math.round(s * this.colorAreaWidth); // 0 → 200
+            const y = Math.round((1 - v) * this.colorAreaHeight); // Brightness is inverted
+
+            return { x, y };
+        },
+
+        colorAreaAction: function(e) {
+            const x = e.clientX - this.colorAreaElRect.x;
+            const y = e.clientY - this.colorAreaElRect.y;
+            this.cc = COLOR.getColorAtPoint(x, y);
+            this.colorCodeToInputs();
+            this.els.alpha.style.background = `linear-gradient(to right, ${this.cc.hex}00 0%, ${this.cc.hex} 100%), repeating-conic-gradient(rgb(204, 204, 204) 0%, rgb(204, 204, 204) 25%, rgb(255, 255, 255) 0%, rgb(255, 255, 255) 50%) 0% 0% / 10px 10px`;
+        },
+
+        // Hue
+        getHueGradientColorAt(percent) {
+            const stops = [
+                { pct: 0, color: [255, 0, 0] }, // red
+                { pct: 16.66, color: [255, 255, 0] }, // yellow
+                { pct: 33.33, color: [0, 255, 0] }, // green
+                { pct: 50.00, color: [0, 255, 255] }, // cyan
+                { pct: 66.66, color: [0, 0, 255] }, // blue
+                { pct: 83.33, color: [255, 0, 255] }, // magenta
+                { pct: 100.0, color: [255, 0, 0] } // red again
+            ];
+
+            // Clamp percentage
+            percent = Math.max(0, Math.min(100, percent));
+
+            // Find the two surrounding stops
+            for (let i = 0; i < stops.length - 1; i++) {
+                const stop1 = stops[i];
+                const stop2 = stops[i + 1];
+
+                if (percent >= stop1.pct && percent <= stop2.pct) {
+                    const range = stop2.pct - stop1.pct;
+                    const ratio = (percent - stop1.pct) / range;
+
+                    const r = Math.round(stop1.color[0] + (stop2.color[0] - stop1.color[0]) * ratio);
+                    const g = Math.round(stop1.color[1] + (stop2.color[1] - stop1.color[1]) * ratio);
+                    const b = Math.round(stop1.color[2] + (stop2.color[2] - stop1.color[2]) * ratio);
+
+                    return this.cc = {
+                        rgb: { r, g, b },
+                        hex: '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
+                    };
+                }
+            }
+
+            // Fallback
+            return this.cc = { rgb: {r:255,g:0,b:0}, hex: '#ff0000' };
+        },
+
+        getBaseHueFrom(color) {
+            // Parse the RGB(A) string
+            const match = color.match(/rgba?\s*\(\s*(\d+),\s*(\d+),\s*(\d+)/i);
+            if (!match) return null;
+
+            const r = parseInt(match[1]) / 255;
+            const g = parseInt(match[2]) / 255;
+            const b = parseInt(match[3]) / 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            const delta = max - min;
+
+            let hue = 0;
+
+            if (delta !== 0) {
+                if (max === r) {
+                    hue = ((g - b) / delta) % 6;
+                } else if (max === g) {
+                    hue = (b - r) / delta + 2;
+                } else if (max === b) {
+                    hue = (r - g) / delta + 4;
+                }
+                hue *= 60;
+                if (hue < 0) hue += 360;
+            }
+
+            return Math.round(hue); // base hue in degrees (0–360)
+        },
+
+        hueAction(e){
+          this.cc = COLOR.getHueGradientColorAt(e.target.value);
+          this.els.colorArea.style.backgroundColor = this.cc.hex;
+          this.colorCodeToInputs();
+          this.els.alpha.style.background = `linear-gradient(to right, ${this.cc.hex}00 0%, ${this.cc.hex} 100%), repeating-conic-gradient(rgb(204, 204, 204) 0%, rgb(204, 204, 204) 25%, rgb(255, 255, 255) 0%, rgb(255, 255, 255) 50%) 0% 0% / 10px 10px`;
+        },
+
+
+        // Alpha
+        alphaAction(e){
+          this.els.a.value = +((e.target.value/100).toFixed(2));
+        },
+
+
+        // Inputs
+        colorCodeToInputs: function(inputEl) {
+            const inputId = inputEl?.dataset.inputId || '';
+
+            if (inputId != 'rgb') {
+              this.els.r.value = this.cc.rgb.r;
+              this.els.g.value = this.cc.rgb.g;
+              this.els.b.value = this.cc.rgb.b;
+            } 
+
+            if (inputId != 'hex') {
+              this.els.hex.value = this.cc.hex;
+            }           
+        },
+
+        // Helpers
+
+        HSVtoRGB(H, S, V) {
+            let R, G, B, var_h, var_i, var_1, var_2, var_3, var_r, var_g, var_b;
+            if (S === 0) {
+                R = V * 255;
+                G = V * 255;
+                B = V * 255;
+            } else {
+                var_h = H * 6;
+                if (var_h === 6) { var_h = 0; } //H must be < 1
+                var_i = parseInt(var_h); //Or ... var_i = floor( var_h )
+                var_1 = V * (1 - S);
+                var_2 = V * (1 - S * (var_h - var_i));
+                var_3 = V * (1 - S * (1 - (var_h - var_i)));
+
+                if (var_i === 0) { var_r = V;
+                    var_g = var_3;
+                    var_b = var_1 } else if (var_i === 1) { var_r = var_2;
+                    var_g = V;
+                    var_b = var_1 } else if (var_i === 2) { var_r = var_1;
+                    var_g = V;
+                    var_b = var_3 } else if (var_i === 3) { var_r = var_1;
+                    var_g = var_2;
+                    var_b = V } else if (var_i === 4) { var_r = var_3;
+                    var_g = var_1;
+                    var_b = V } else { var_r = V;
+                    var_g = var_1;
+                    var_b = var_2 }
+
+                R = parseInt(var_r * 255);
+                G = parseInt(var_g * 255);
+                B = parseInt(var_b * 255);
+            }
+            return { r: R, g: G, b: B };
+        },
+
+        RGBtoHSV(r, g, b) {
+            //R, G and B input range = 0 ÷ 255
+            //H, S and V output range = 0 ÷ 1.0
+
+            const var_R = (r / 255);
+            const var_G = (g / 255);
+            const var_B = (b / 255);
+
+            const var_Min = Math.min(var_R, var_G, var_B); //Min. value of RGB
+            const var_Max = Math.max(var_R, var_G, var_B); //Max. value of RGB
+            const del_Max = var_Max - var_Min; //Delta RGB value
+
+            let V = var_Max;
+            let H, S;
+
+            if (del_Max === 0) //This is a gray, no chroma...
+            {
+                H = 0;
+                S = 0;
+            } else //Chromatic data...
+            {
+                S = del_Max / var_Max;
+
+                const del_R = (((var_Max - var_R) / 6) + (del_Max / 2)) / del_Max;
+                const del_G = (((var_Max - var_G) / 6) + (del_Max / 2)) / del_Max;
+                const del_B = (((var_Max - var_B) / 6) + (del_Max / 2)) / del_Max;
+
+                if (var_R === var_Max) { H = del_B - del_G; } else if (var_G === var_Max) { H = (1 / 3) + del_R - del_B; } else if (var_B === var_Max) { H = (2 / 3) + del_G - del_R; }
+
+                if (H < 0) { H += 1; }
+                if (H > 1) { H -= 1; }
+            }
+            return { h: H, s: S, v: V };
+        },
+
+        RGBtoHex(r, g, b) {
+            if (typeof r === 'object') {
+                g = r.g;
+                b = r.b;
+                r = r.r;
+            }
+            return '#' + this.toHex(parseInt(r)) + this.toHex(parseInt(g)) + this.toHex(parseInt(b));
+        },
+
+        hexToRGB(hex) {
+            var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+                return r + r + g + g + b + b;
+            });
+
+            let target;
+            if (hex.charAt(0) === '#') {
+                target = 7;
+            } else if (hex.charAt(0) !== '#') {
+                target = 6;
+            }
+
+            while (hex.length < target) {
+                hex += '0';
+            }
+
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        },
+
+        formatHex(val) {
+            if (val.charAt(0) !== '#') {
+                val = '#' + val;
+            }
+            while (val.length < 7) {
+                val += '0';
+            }
+            return val;
+        },
+
+        toHex(val) {
+            let hex = Number(val).toString(16);
+            if (hex.length < 2) {
+                hex = "0" + hex;
+            }
+            return hex;
+        },
+
+        rgbToHsv(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
+            const max = Math.max(r, g, b),
+                min = Math.min(r, g, b);
+            const d = max - min;
+
+            let h = 0;
+            if (d !== 0) {
+                if (max === r) h = ((g - b) / d) % 6;
+                else if (max === g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h *= 60;
+                if (h < 0) h += 360;
+            }
+
+            const s = max === 0 ? 0 : d / max;
+            const v = max;
+
+            return { h, s, v };
+        },
+
+        init: function() {
+            COLOR.coloectElements();
+            COLOR.collectElsRect();
+        }
+
+    }
+
+    document.addEventListener('pointerdown', down);
+    document.addEventListener('input', input);
+    document.addEventListener('change', change);
+    document.addEventListener('pointermove', move);
+    window.addEventListener('load', COLOR.init);
+
+    function down(e) {
+        if (e.target.dataset.eventId === 'color-area') COLOR.colorAreaAction(e);
+    }
+
+    function input(e) {        
+        if (e.target.dataset.eventId === 'hue-input') COLOR.hueAction(e);
+        if (e.target.dataset.eventId === 'alpha-input') COLOR.alphaAction(e);
+    }
+
+    function change(e) {
+
+    }
+
+    function move(e) {
+
+    }
+
+
+
+
+
+
+    // const hueInputEl = document.querySelector('#hue-input');
+    // const colorAreaEl = document.querySelector('#color-area');
+    // const colorAreaElRect = colorAreaEl.getBoundingClientRect();
+
+    // hueInputEl.addEventListener('input', () => {
+    //   const color = COLOR.getHueGradientColorAt(hueInputEl.value);
+    //   colorAreaEl.style.backgroundColor = color.hex;
+    // })
+
+    // hueInputEl.addEventListener('change', () => {
+    //   const color = COLOR.getHueGradientColorAt(hueInputEl.value);
+    //   COLOR.baseHue = COLOR.getBaseHueFrom(color.rgb);   
+    // })
+
+    // colorAreaEl.addEventListener('pointerdown', (e)=>{
+    //   const x = e.clientX-colorAreaElRect.x;
+    //   const y = e.clientY-colorAreaElRect.y;
+    //   const color = COLOR.getColorAtPoint(x,y);
+    //   document.body.style.backgroundColor = color.hex;
+    // })
+    </script>
 </body>
+
 </html>
