@@ -6,4 +6,14 @@ Feedback & Docs
 * Event import and export in events/index.js, must be lowercase latters.
 * In events/index.js, export only events, not another things.
 * if browser carsh, than indexedDB crash, what is solution.
+* There are many modals & popups which may use or not use. if use than it take memory unless not. issue is, in style sidebar (animation, background), use change in design sidebar css props and it need to update also in style sidebar. here not update.
+In index page, Coming Soon title with 2 links, Github Link (source code) & domain/design.html
 
+
+To Design End 
+----------------------------
+* Implement github all concept
+* event handler write in component separately. it break DRY concept, but it necessary. handler body code is same for every compoennts. so
+* Add debounce and throttle concept in handler of every component, separately && continues fire events like input, move, keyup - use Throttle 30
+* In layer sidebar, every layer, remove delete icon functionality, use lock icon just like figma
+* Color Picker

@@ -44,8 +44,8 @@ import * as Events from './events/index.js';
 		}
 
 	}
+
+	don't store events in a component's property, because events must be private of component
 	
 
- 
-
-	I think, we can implement, throttle & debounce in one place wbtr-custom-element/index.js in _handleEvents
+	
