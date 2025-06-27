@@ -1,0 +1,9 @@
+/* Angle Icons By CSS Only */
+width: 10px;
+height: 10px;
+transform: rotate(45deg);
+margin: 20px;
+border-right: 2px solid black;
+border-bottom: 2px solid black;
+border-left: 2px solid black;
+border-top: 2px solid black;
