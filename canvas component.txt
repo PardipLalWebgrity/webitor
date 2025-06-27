@@ -1,0 +1,6 @@
+* Remove hoverIndicator concept from canvas methods, canvas html, canvas css, canvas pointerover, canvas pointerout
+* set --canvas--scale 
+* canvas style {
+	outline-offset: calc(-1px / var(--canvas--scale));
+	outline:calc(1px / var(--canvas--scale)) solid #0d99ff;
+}
