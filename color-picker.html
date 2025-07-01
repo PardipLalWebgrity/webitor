@@ -37,9 +37,9 @@
         <input type="range" class="alpha-input" data-id="alphaInput" data-event-id="alpha-input" min="0" max="1" step="0.01">
     </div>
     <label>RGBA</label>
-    <input type="number" data-id="coder" data-input-id="rgb">
-    <input type="number" data-id="codeg" data-input-id="rgb">
-    <input type="number" data-id="codeb" data-input-id="rgb">
+    <input type="number" data-id="coder" data-input-id="rgb" data-event-id="rgb" data-label="r" min="0" max="255">
+    <input type="number" data-id="codeg" data-input-id="rgb" data-event-id="rgb" data-label="g" min="0" max="255">
+    <input type="number" data-id="codeb" data-input-id="rgb" data-event-id="rgb" data-label="b" min="0" max="255">
     <br><br>
     <label>Alpha</label>
     <input type="number" data-id="codea" min="0" max="1" step="0.01">
@@ -133,7 +133,8 @@
             return { x, y };
         },
 
-        setColorAreaColor() {           
+        setColorAreaColor() {     
+            console.log(`rgb(${this.cc.rgb.r},${this.cc.rgb.g},${this.cc.rgb.b})`);      
             this.els.colorArea.style.backgroundColor = `rgb(${this.cc.rgb.r},${this.cc.rgb.g},${this.cc.rgb.b})`;
             this.cc.baseHue = this.getHueFromRGB();           
         },
@@ -522,7 +523,12 @@
                 COLOR.cc.rgb = COLOR.getHueGradientColorAt(t.value);                   
                 COLOR.setColorAreaColor();
                 COLOR.setColorCodeFields();  
+            }
 
+            if(t.closest('[data-event-id="rgb"]')) {
+                const labelId = e.target.dataset.label;                             
+                COLOR.cc.rgb[labelId] = t.value;
+                COLOR.setColorAreaColor();                
             }
         }
 
