@@ -45,7 +45,7 @@
     <input type="number" data-id="codea" min="0" max="1" step="0.01">
     <br><br>
     <label>HEX</label>
-    <input type="text" data-id="codehex" data-input-id="hex">
+    <input type="text" data-id="codehex" data-input-id="hex" data-event-id="hex">
 
     <div id="result" class="result"></div>
     <script>
@@ -59,10 +59,11 @@
         colorAreaHeight: 200,
         colorAreaElRect: 0,        
         cc: {
-            rgb: {r:255,g:0,b:0},
+            rgb: {r:164,g:58,b:58},
             alpha: 1,
-            hex: '#FF0000',
+            hex: '#a43a3a',
             baseHue: 0,
+            pureRGB: {r:255,g:0,b:0},
         },
 
         coloectElements: function() {
@@ -134,9 +135,8 @@
         },
 
         setColorAreaColor() {     
-            console.log(`rgb(${this.cc.rgb.r},${this.cc.rgb.g},${this.cc.rgb.b})`);      
-            this.els.colorArea.style.backgroundColor = `rgb(${this.cc.rgb.r},${this.cc.rgb.g},${this.cc.rgb.b})`;
-            this.cc.baseHue = this.getHueFromRGB();           
+            this.els.colorArea.style.backgroundColor = `rgb(${this.cc.pureRGB.r},${this.cc.pureRGB.g},${this.cc.pureRGB.b})`;
+            this.cc.baseHue = this.getHueFromRGB();   
         },
 
         setColorAreaPointer(){
@@ -201,7 +201,7 @@
                 this.els.codehex.value = this.RGBtoHex(this.cc.rgb);
             }
             
-            if(codename === 'rgba' || codename === 'all') {
+            if(codename === 'rgb' || codename === 'all') {
                 this.els.coder.value = this.cc.rgb.r;
                 this.els.codeg.value = this.cc.rgb.g;
                 this.els.codeb.value = this.cc.rgb.b;
@@ -285,7 +285,8 @@
             return percentage;
         },
 
-        rgbToPureHueColor() {
+        rgbToPureRGBColor() {
+            
           const {r,g,b} = this.cc.rgb;
           const max = Math.max(r, g, b);
           const min = Math.min(r, g, b);
@@ -307,7 +308,7 @@
           }
 
           // Now convert H, 100% S, 50% L to RGB          
-          const [_r, _g, _b] = this.hslToRgb(h, 100, 50);          
+          const [_r, _g, _b] = this.hslToRgb(h, 100, 50);        
           return {r:_r, g:_g, b:_b};
         },
 
@@ -480,6 +481,27 @@
             return { h, s, v };
         },
 
+        fixHexColor(valu) {
+          // Remove all non-hex characters and leading #
+          console.log(valu);
+          const cleaned = valu.trim().replace(/[^a-fA-F0-9]/g, '').toLowerCase();
+
+          // If 3 digits, expand to 6 (e.g. "abc" → "aabbcc")
+          if (cleaned.length === 3) {
+            return '#' + cleaned.split('').map(c => c + c).join('');
+          }
+
+          // If exactly 6 hex digits, return as-is
+          if (cleaned.length === 6) {
+            return '#' + cleaned;
+          }
+
+          // If too short, pad with '0'; if too long, truncate
+          const padded = (cleaned + '000000').slice(0, 6);
+          return '#' + padded;
+        },
+
+
         init: function() {
             COLOR.coloectElements();
             COLOR.collectElsRect();
@@ -520,15 +542,27 @@
             const t = e.target;
 
             if(t.closest('[data-event-id="hue-input"]')) {               
-                COLOR.cc.rgb = COLOR.getHueGradientColorAt(t.value);                   
+                COLOR.cc.pureRGB = COLOR.getHueGradientColorAt(t.value);                   
                 COLOR.setColorAreaColor();
                 COLOR.setColorCodeFields();  
             }
 
-            if(t.closest('[data-event-id="rgb"]')) {
-                const labelId = e.target.dataset.label;                             
-                COLOR.cc.rgb[labelId] = t.value;
-                COLOR.setColorAreaColor();                
+            if(t.closest('[data-event-id="rgb"]')) {                                
+                const labelId = e.target.dataset.label;                               
+                COLOR.cc.rgb[labelId] = +t.value;
+                COLOR.cc.pureRGB = COLOR.rgbToPureRGBColor();
+                COLOR.setColorAreaColor();   
+                COLOR.setColorCodeFields('hex');     
+                COLOR.setColorAreaPointer();        
+            }
+
+            if(t.closest('[data-event-id="hex"]')) {
+                COLOR.cc.hex = COLOR.fixHexColor(t.value);               
+                COLOR.cc.rgb = COLOR.hexToRGB(COLOR.cc.hex);
+                COLOR.cc.pureRGB = COLOR.rgbToPureRGBColor();                                  
+                COLOR.setColorAreaColor(); 
+                COLOR.setColorCodeFields('rgb');
+                COLOR.setColorAreaPointer();
             }
         }
 
