@@ -8,6 +8,7 @@ Feedback & Docs
 * if browser carsh, than indexedDB crash, what is solution.
 * There are many modals & popups which may use or not use. if use than it take memory unless not. issue is, in style sidebar (animation, background), use change in design sidebar css props and it need to update also in style sidebar. here not update.
 In index page, Coming Soon title with 2 links, Github Link (source code) & domain/design.html
+* due to lnodes are limited in server, all svg icons which fetch individually by js, use a js file & store an object
 
 
 To Design End 

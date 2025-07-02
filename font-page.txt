@@ -1,0 +1,54 @@
+
+1) Hero Section
+* background Image (search code on unsplash)
+* Headline: Design Visually. Build with Real HTML
+* Subheadline: A browser-based design tool powered by pure HTML elements — no canvas, no limits.
+* CTA Buttons: Try the Editor & Watch Demo (YTD)
+
+2) Key Features
+* Real HTML Elements: Design using native <div>, <button>, <input>, and more — no canvas, no magic. What you design is real, accessible markup.
+* Visual Editor with Drag-and-Drop: Build and arrange HTML elements visually with direct manipulation — no canvas, just clean code.
+* Smart Guides & Snapping: Snap to edges, centers, and spacing with pixel-perfect precision. Get visual feedback as you align and position elements.
+* Reusable Components: Group and reuse sections as custom HTML-based components. Build layouts with consistency and flexibility — no need to repeat yourself.
+* CSS Styling, Live: Style elements visually with instant updates. Customize font, padding, colors, borders — or edit raw CSS directly when needed.
+* Clean Export to HTML/CSS: Generate semantic, clean HTML and CSS with one click. Perfect for handoff or starting real production code.
+* No Canvas, No WebGL, No Compromise: Built entirely with web standards. Accessible, inspectable, and responsive by default — because your design is the DOM.
+
+3) Design Tools in Action
+* there are columns for each tool in owl carousel. in column, 1 YTD Video and a heading for tool.
+
+
+THEME
+----------
+
+--primary--color: #2f81f7;
+--secondary--color: #0d1117;
+
+
+Complete Separate CSS in Own Component :-
+* CSS Prop Input
+* CSS Prop Select
+
+
+
+Headings:-
+--h1--font: ;
+--h2--font: ;
+--h3--font: ;
+--h4--font: ;
+--h5--font: ;
+--h6--font: ;
+
+------------------------------------------------------------------------
+
+Website Parts
+* Section Separator <hr>
+* h1 to h6 heading tags
+* CSS Prop Input
+* CSS Prop Select
+* Select
+* scrollbar design
+* button
+
+
+
