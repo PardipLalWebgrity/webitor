@@ -96,12 +96,12 @@ const Text = {
 
         // Mid Nodes
         if(range.startContainer !== range.endContainer) {
+         console.log(range.startContainer, range.endContainer);
           let itarateNode = range.startContainer.nextElementSibling;
           let endContainerEl = range.endContainer.nodeType === 1 ? range.endContainer : range.endContainer.parentElement;
           while (itarateNode !== endContainerEl) {
               if (itarateNode.nodeType === 1) rangeNodes.midNodes.push(itarateNode);
-              itarateNode = itarateNode.nextSibling || endContainerEl;
-              console.log('while Run');
+              itarateNode = itarateNode.nextSibling || endContainerEl;              
           }
         }
 
@@ -124,10 +124,11 @@ const Text = {
           const spanEl = document.createElement('span');   
           for(let c in args.css) spanEl.style[c] = args.css[c];     
           spanEl.appendChild(startRange.extractContents());
-          startRange.insertNode(spanEl);   
-          selection.removeAllRanges();       
+          startRange.insertNode(spanEl);
         }
     },
+
+    
 
     init: () => {
         Text.coloectElements();
