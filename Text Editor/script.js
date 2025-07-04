@@ -1,139 +1,167 @@
 const Text = {
 
-    actionCSS: {
-        bold: { 'font-weight': 'bold' },
-        italic: { 'font-style': 'italic' },
-        underline: { 'text-decoration': 'underline' },
-        sup: { 'vertical-align': 'super', 'font-size': '0.8em' },
-        sub: { 'vertical-align': 'sub', 'font-size': '0.8em' },
-        textcolor: { color: 'red' },
-        textbg: { background: 'red' },
-    },
-
+    editotAction: '',
+    wrapperTag: '',
     els: {},
 
-    coloectElements: function() {
+    selection: null,
+    range: null,
+    startContainer: null,
+    endContainer: null,
+    startNodeDiff: null, // start node when two nodes in selection are different
+    endNodeDiff: null, // end node when two nodes in selection are different
+    spanStyleEls: [], // non tag span elements style by css
+
+
+    colectElements: function() {
         const els = document.querySelectorAll('[data-id]');
         els.forEach((el) => {
             this.els[el.dataset.id] = el;
         })
-        console.log(this.els);
     },
 
     documentClick: (e) => {
 
         const t = e.target;
+        Text.spanStyleEls.length = 0;
 
-        // editor button
-        if (t.closest('[data-editor-action]')) {
-            const action = t.closest('[data-editor-action]')?.dataset.editorAction;
-            const css = Text.actionCSS[action];
-            const rangeNodes = Text.getRangeNodes();
-            if(!rangeNodes) return;
-            
-            // Single Node
-            if(rangeNodes.midNodes.length === 0) {
-               Text.createSelectionWrapper({
-                 node: rangeNodes.start.node,
-                 offsetX: rangeNodes.start.sIndex,
-                 offsetY: rangeNodes.end.eIndex,
-                 css: css,
-               })               
-            }            
+        // Editor button
+        if(t.closest('[data-event-id="editor-action"]')) {
+          Text.selection = window.getSelection();         
+          if(Text.selection.rangeCount === 0) return;
 
-            // Multiple Nodes
-            if(rangeNodes.midNodes.length) {
-              // Start
-              Text.createSelectionWrapper({
-                node: rangeNodes.start.node,
-                offsetX: rangeNodes.start.sIndex,
-                offsetY: rangeNodes.start.eIndex,
-              });
-              
-              // End
-              Text.createSelectionWrapper({
-                node: rangeNodes.end.node,
-                offsetX: rangeNodes.end.sIndex,
-                offsetY: rangeNodes.end.eIndex,
-              })
-              
-              // Multi
-              rangeNodes.midNodes.forEach((el)=>{
-                for(let c in css) el.style[c] = css[c];
-              })
-            }
+          Text.range = Text.selection.getRangeAt(0);
+          Text.sNode = Text.range.startContainer;
+          Text.sOffset = Text.range.startOffset;
+          Text.eNode = Text.range.endContainer;
+          Text.eOffset = Text.range.endOffset;
+          console.log(Text.range);
 
+          Text.editotAction = t.closest('[data-action]').dataset.action;
+          Text.wrapperTag = Text.getWrapperTagName(Text.editotAction);
 
-            console.log('Executed');
+          Text.handleStartNode();
+          // Text.handleMiddleNode();
+          Text.handleEndNode();
         }
     },
 
-    getRangeNodes() {
 
-        const selection = window.getSelection();        
-        if (selection.rangeCount !== 1) return false; // currently one selection focus
-        const range = selection.getRangeAt(0);
+    // Start Container
+    handleStartNode(){
+      // Only text Node Selected
+      if(this.sNode === this.eNode) {
+         this.range.setStart(this.sNode, this.sOffset);
+         this.range.setEnd(this.sNode, this.eOffset);
+         const wrapperEl = document.createElement(this.wrapperTag);               
+         wrapperEl.appendChild(this.range.extractContents());
+         this.range.insertNode(wrapperEl); 
+         this.styleNonTagSpanElement(wrapperEl);
 
-        const rangeNodes = {
-            start: {
-                node: null,
-                sIndex: 0,
-                eIndex: 0,
-            },
-            midNodes: [],
-            end: {
-                node: null,
-                sIndex: 0,
-                eIndex: 0,
-            }
-        };
+         // Update Range
+         this.range = document.createRange();
+         this.range.selectNodeContents(wrapperEl);
+         this.selection.removeAllRanges();
+         this.selection.addRange(this.range);
+         return;
+      }
 
-        // Start Node
-        rangeNodes.start.node = range.startContainer;
-        rangeNodes.start.sIndex = range.startOffset;
-        rangeNodes.start.eIndex = range.startContainer.length;
+      // double click on one word node
+      if(this.sNode.sOffset === this.sNode.length) return;
 
-
-        // Mid Nodes
-        if(range.startContainer !== range.endContainer) {
-         console.log(range.startContainer, range.endContainer);
-          let itarateNode = range.startContainer.nextElementSibling;
-          let endContainerEl = range.endContainer.nodeType === 1 ? range.endContainer : range.endContainer.parentElement;
-          while (itarateNode !== endContainerEl) {
-              if (itarateNode.nodeType === 1) rangeNodes.midNodes.push(itarateNode);
-              itarateNode = itarateNode.nextSibling || endContainerEl;              
-          }
-        }
-
-
-        // End Node
-        rangeNodes.end.node = range.endContainer;
-        rangeNodes.end.sIndex = 0;
-        rangeNodes.end.eIndex = range.endOffset;
-
-        return rangeNodes;
+      // start container & endContainer different & start is text node
+      if(this.sNode !== this.eNode && this.sNode.nodeType === 3) {
+         this.range.setStart(this.sNode, this.sOffset);
+         this.range.setEnd(this.sNode, this.sNode.length);
+         const wrapperEl = document.createElement(this.wrapperTag);               
+         wrapperEl.appendChild(this.range.extractContents());
+         this.range.insertNode(wrapperEl);     
+         this.startNodeDiff = wrapperEl.childNodes[0];
+         this.styleNonTagSpanElement(wrapperEl);
+      }
     },
 
-    createSelectionWrapper(args){
-        const selection = window.getSelection();
-        const startRange = selection.getRangeAt(0);
-
-        if (selection.rangeCount === 1) {
-          startRange.setStart(args.node, args.offsetX);
-          startRange.setEnd(args.node, args.offsetY);
-          const spanEl = document.createElement('span');   
-          for(let c in args.css) spanEl.style[c] = args.css[c];     
-          spanEl.appendChild(startRange.extractContents());
-          startRange.insertNode(spanEl);
-        }
+    // Middle Nodes
+    handleMiddleNode(){
+      const midTextNodes = [];
+      const midElementNodes = [];
     },
 
-    
+    // End Container
+    handleEndNode(){
+      // start container & endContainer different & end is text node
+      if(this.sNode !== this.eNode && this.eNode.nodeType === 3) {
+         this.range.setStart(this.eNode, 0);
+         this.range.setEnd(this.eNode, this.eOffset);
+         const wrapperEl = document.createElement(this.wrapperTag);               
+         wrapperEl.appendChild(this.range.extractContents());
+         this.range.insertNode(wrapperEl);
+         this.endNodeDiff = wrapperEl.childNodes[0];
+
+         // Update Range
+         this.range = document.createRange();
+         this.range.setStart(this.startNodeDiff, 0);
+         this.range.setEnd(this.endNodeDiff, this.eOffset);
+         this.selection.removeAllRanges();
+         this.selection.addRange(this.range);
+         this.styleNonTagSpanElement(wrapperEl);
+      }
+    },
+
+    getWrapperTagName(editotAction){
+      let tagName = '';
+      switch (editotAction) {
+        case 'btag':
+          tagName = 'b';
+          break;
+
+        case 'itag':
+          tagName = 'i';
+          break;
+
+        case 'utag':
+          tagName = 'u';
+          break;
+
+        case 'suptag':
+          tagName = 'sup';
+          break;
+
+        case 'subtag':
+          tagName = 'sub';
+          break;
+
+        case 'textcolor':
+          tagName = 'span';
+          break;
+
+        case 'textbg':
+          tagName = 'span';
+          break;
+      }
+      return tagName;
+    },
+
+    updateRangeSelection(){
+
+    },
+
+    styleNonTagSpanElement(spanEl){
+      if(Text.editotAction === 'textcolor') spanEl.style.color = 'red';
+      if(Text.editotAction === 'textbg') spanEl.style.backgroundColor = 'red';
+    },
 
     init: () => {
-        Text.coloectElements();
+        Text.colectElements();
     },
 }
 
 window.addEventListener('load', Text.init);
 window.addEventListener('click', Text.documentClick);
+
+
+/*
+
+* If user select element node as startContainer & endContainer
+
+*/
