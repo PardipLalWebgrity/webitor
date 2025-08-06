@@ -11,3 +11,6 @@
 
 * Select multiple layers
 - when user drag selection, dont hide div, just remove bg color as transparent, when user move, internally move selection div, in selection div a function call, to move all selected layers
+
+
+* 1st time when page load, ui component after load and frequently used component. Exceprt these components, in main component class - a list for stable component in array. Add a method in main component is disconnectedCallback, when component remove, this method clean memory. 
