@@ -1,13 +1,35 @@
 
-
-* A only function which handle to set css to active layers of canvas - active mean user select by click or by draging
-
+* New Structure Of Canvas Component
+- events
+-- click.js
+-- input.js
+- utils
+-- methods.js
+-- props.js
+- tools
+-- move.js
+-- zoom.js
+-- html-section.js
+-- html-text.js
+- workspace
+-- layer.js
+-- page.js
+-- canvas.js
+== WBTR.canvas.methods, WBTR.canvas.props, WBTR.canvas.tools.zoom.abc(), WBTR.canvas.workspace.layer.abc()
 
 * Duplicate Page 
 - already coded
 
 * Layer select, show it dimension
 - use ::before 
+
+* all css style in css property & attribute in attr of layer object in layers objectStore store. because layer has if 10 property and loop on each can lag on page load.
+- HTML = attr, css
+- SVG = attr, css, sattr, scss
+
+
+* A only function which handle to set css to active layers of canvas - active mean user select by click or by draging
+
 
 * Select multiple layers
 - when user drag selection, dont hide div, just remove bg color as transparent, when user move, internally move selection div, in selection div a function call, to move all selected layers
@@ -17,6 +39,6 @@
 
 * Remove sleft & stop, which use for left & top. stay with official - left & top.
 
-* all css style in css property & attribute in attr of layer object in layers objectStore store. because layer has if 10 property and loop on each can lag on page load.
-
 * Canvas's _drawCanvasHTMLAndCSS - HTML Tag, SVG Tag, Page, 
+
+* add a function (selectElement) to main component to select element from shadow root ro replace "shadowRoot.querySelector"
