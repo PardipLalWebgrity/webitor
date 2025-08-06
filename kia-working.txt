@@ -1,0 +1,13 @@
+
+
+* A only function which handle to set css to active layers of canvas - active mean user select by click or by draging
+
+
+* Duplicate Page 
+- already coded
+
+* Layer select, show it dimension
+- use ::before 
+
+* Select multiple layers
+- when user drag selection, dont hide div, just remove bg color as transparent, when user move, internally move selection div, in selection div a function call, to move all selected layers
