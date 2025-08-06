@@ -1,0 +1,5 @@
+
+** In paste layer, dont add px, because it already has px
+styleEl.setAttribute('data-layer', copyLayer.index);
+copyEl.style.left = copyLayer.left;
+copyEl.style.top = copyLayer.top;
