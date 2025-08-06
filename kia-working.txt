@@ -14,3 +14,5 @@
 
 
 * 1st time when page load, ui component after load and frequently used component. Exceprt these components, in main component class - a list for stable component in array. Add a method in main component is disconnectedCallback, when component remove, this method clean memory. 
+
+* Remove sleft & stop, which use for left & top. stay with official - left & top.
