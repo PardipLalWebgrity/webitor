@@ -42,3 +42,7 @@
 * Canvas's _drawCanvasHTMLAndCSS - HTML Tag, SVG Tag, Page, 
 
 * add a function (selectElement) to main component to select element from shadow root ro replace "shadowRoot.querySelector"
+
+* Add radio(s) as icon for devices at canvas top-center - Desktop, Mobile, Tab. Default is desktop. based on device, css added to later object
+
+* Maintain z-index based on page, not whole canvas.
