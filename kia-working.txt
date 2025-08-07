@@ -47,7 +47,7 @@
 
 * Maintain z-index based on page, not whole canvas.
 
-** below concept is for future. As much as possible we create css props category as minimum requirement of design. User use this concept to increase application concept
+** below concept is for future because of nobody know in future, css what properties provide. As much as possible we create css props category as minimum requirement of design. User use this concept to increase application design concept.
 * user can register own properties
 - Types px, color, dropdown, int
 Note :- Assume, in future, there are a css property {childrens: 3;}. Even if parent has many children, but show only 3 childrens. Than user register own property as int just like {name: children, value: int, category: css-category-name}. In more-settings component dropdown. User has option to where to show this property in dropdown. On register css property time, user can also register css-property-category.
