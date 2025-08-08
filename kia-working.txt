@@ -57,3 +57,9 @@
 Note :- Assume, in future, there are a css property {childrens: 3;}. Even if parent has many children, but show only 3 childrens. Than user register own property as int just like {name: children, value: int, category: css-category-name}. In more-settings component dropdown. User has option to where to show this property in dropdown. On register css property time, user can also register css-property-category.
 
 * May or Not, In more-settings popup, right side, a search icon, user click , a search input appear. User search border, all border related properties show like border-color, border-width, border-height
+
+* In assets tab, add these options...
+- CSS Extensions = open a big popup to add custom css property based on previous Types
+- Tag Styles = a right arrow in option, when user click. List of tags show like p, h1, h2, section. User can select any tag like h1 & style by any prop filed just layers sidebar.
+- Components = currently unknown
+- UI Library = a right arrow in option, when user click. List of ui library show like Bootstrap, Tailwind, jQuery
