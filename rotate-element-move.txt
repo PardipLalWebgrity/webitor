@@ -17,7 +17,6 @@ static _handlePointerMoveTriangleMoveItem(e) {
 
 
 
-
 static _handlePointerUpTriangleMoveItem() {
     if (!props._trianT || props._actvmY === 0) return;
 
