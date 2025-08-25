@@ -13,3 +13,19 @@ static _handlePointerMoveTriangleMoveItem(e) {
         top:  parseFloat(props._trianTcss.top)  + dy,
     });
 }
+
+
+
+
+
+static _handlePointerUpTriangleMoveItem() {
+    if (!props._trianT || props._actvmY === 0) return;
+
+    // compute new left/top based on original position + drag delta
+    const left = parseFloat(props._trianTcss.left) + (props._actvmX - props._actvdX) + 'px';
+    const top  = parseFloat(props._trianTcss.top)  + (props._actvmY - props._actvdY) + 'px';
+
+    Object.assign(props._trianT.style, { left, top, translate: 'none' });
+
+    methods._saveCanvasCurrentTargetToIndexedDB();
+}
