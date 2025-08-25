@@ -1,0 +1,15 @@
+static _handlePointerMoveTriangleMoveItem(e) {
+    if (!props._trianT) return;
+
+    const x = e.clientX / props._magnifScale,
+          y = e.clientY / props._magnifScale,
+          dx = Math.floor(x - props._actvdX),
+          dy = Math.floor(y - props._actvdY);
+
+    props._trianT.style.translate = `${dx}px ${dy}px`;
+
+    methods._updatePropFormFieldsOfCanvasTarget({
+        left: parseFloat(props._trianTcss.left) + dx,
+        top:  parseFloat(props._trianTcss.top)  + dy,
+    });
+}
