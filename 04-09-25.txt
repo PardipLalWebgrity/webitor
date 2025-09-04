@@ -6,3 +6,4 @@
 - After 5 seconds, update objects to database
 - get all objects data
 - No others concept related to Database
+- be careful, as size data go to server as bandwidth calculate, mean if we send {index: 123, css: {color: red, font-size: 20px}} than bandwidth calculate less but if we provide whole object than it calculate much bandwidth.
