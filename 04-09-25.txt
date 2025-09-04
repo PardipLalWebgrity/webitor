@@ -1,5 +1,5 @@
 * When page load, all objects data store in memeort
-* In every, layer,page,canvas modify, update data in memory object or variable
+* In every pointerdown, layer,page,canvas modify, update data in memory object or variable
 * On every layer pointer down, make it {modify: true}
 * After every 5 seconds, update modify objects data to indexedDB
 ** benefit is, when we implement PHP, we has only 2 concept
