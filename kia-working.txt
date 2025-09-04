@@ -1,3 +1,26 @@
+* User can upload own svg
+- ???
+
+* border-radious separately
+- Just Like Figma
+
+* Text layer must be background free, & default is lorem ipsum text.
+* layer duplicate not work on svg
+* hover effect show, svg is selected but when user select page going to select because of if shape has no fill, shape select by only stroke, which is very hard for user.
+* When duplicate text node, in sidebar, it show P instead of TEXT.
+* Wht fill update stroke instead of stroke for color of star.
+* When layer add, it append at the end but when page load it show 1st. Or whole vice-versa.
+
+
+
+
+
+
+
+
+
+
+
 
 * New Structure Of Canvas Component
 - events
