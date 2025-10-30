@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Document</title>
+</head>
+<body>
+
+ <style>
+  *{padding: 0;margin: 0;box-sizing: border-box;}
+  body{width: 100vw;height: 100vh;display: flex;justify-content: center;align-items: center;background-color: #000;flex-direction: column;gap:10px;}
+  ul{padding-left: 15px;}
+
+  .editor-actions{display: flex;flex-wrap: wrap;gap:8px;}
+  .editor-actions button{display: inline-block;width:34px;height:34px;color:#fff;background-color: transparent;border:1px solid #ccc;border-radius: 4px;}
+  .editor-actions .bold-action{font-weight: bold;}
+  .editor-actions .italic-action{font-style: italic;}
+  .editor-actions .underline-action{text-decoration: underline;}
+  .editor-actions .sup-action{}
+  .editor-actions .sub-action{}
+  .editor-actions .textcolor-action{color: #53a2eb;}
+  .editor-actions .textbg-action{background-color: #53a2eb;}
+  .editot-text{width: 450px;font-size: 18px;line-height: 1.4;color:#fff;padding: 15px;border:1px solid #ccc;border-radius: 4px;}
+ </style>
+
+ <div class="editor-actions" data-id="editorActions">
+  <button class="bold-action" data-action="btag" data-event-id="editor-action">B</button>
+  <button class="italic-action" data-action="itag" data-event-id="editor-action">I</button>
+  <button class="underline-action" data-action="utag" data-event-id="editor-action">U</button>
+  <button class="sup-action" data-action="suptag" data-event-id="editor-action">X<sup>2</sup></button>
+  <button class="sub-action" data-action="subtag" data-event-id="editor-action">X<sub>2</sub></button>
+  <button class="textcolor-action" data-action="textcolor" data-event-id="editor-action">A</button>  
+  <button class="textbg-action" data-action="textbg" data-event-id="editor-action">A</button>  
+ </div>
+
+ <div class="editot-text" data-id="editotText">
+  <P>This is a paragraph <i>Italic Text</i> also support <b>Bold Text</b> and liner <u>Underline Text</u></P>
+  <ul>
+   <li> This is a <span style="border:1px solid red;">ok</span> hello Item 1 </li>
+   <li> This Is a List Item 2 </li>
+   <li> This Is a List Item 3 </li>
+   <li> This Is a List Item 4 </li>
+   <li> This Is a List Item 5 </li>
+  </ul>
+</div>
+
+ <script src="script.js"></script>
+</body>
+</html>
