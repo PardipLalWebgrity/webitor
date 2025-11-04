@@ -101,14 +101,42 @@
 
 
       /********************* Points Control **************************/
-      svgEl.addEventListener('click', (e)=>{
+
+      let activeIndex = -1;
+
+      // Pointer Down Event
+      svgEl.addEventListener('pointerdown', (e)=>{
         const rect = svgEl.getBoundingClientRect();        
-        const pointIndex = getClickedPointIndexFromEvent(e, svgEl, xyPoints, 8);
-        if(pointIndex !== -1){
-          console.log('Clicked Point Index:', pointIndex);
+        activeIndex = getClickedPointIndexFromEvent(e, svgEl, xyPoints, 8);
+        if(activeIndex !== -1){
+          console.log('Clicked Point Index:', activeIndex);
         } else {
           console.log('No point clicked');
         }
+      });
+
+      // Pointer Move Event
+      svgEl.addEventListener('pointermove', (e)=>{
+        let rect = svgEl.getBoundingClientRect();
+        if(activeIndex !== -1){
+          const pt = svgEl.createSVGPoint();
+          pt.x = e.clientX;
+          pt.y = e.clientY;
+          const svgP = pt.matrixTransform(svgEl.getScreenCTM().inverse());
+          const { x, y } = svgP;
+
+          // Update point position
+          xyPoints[activeIndex] = { x, y };
+
+          // Re-render circles path
+          const updatedD = getCirclesPathD(xyPoints, 8, { fill: '#f88', stroke: '#b00', 'stroke-width': 1 });
+          circlesPath.setAttribute('d', updatedD);
+        }
+      });
+
+      // Pointer Up Event
+      svgEl.addEventListener('pointerup', (e)=>{
+        activeIndex = -1; // Reset active index
       });
       
       /********************* Points Control **************************/
