@@ -59,6 +59,44 @@
         return -1; // no match
       }
 
+      function checkCharType(char) {
+        if(char >= 'A' && char <= 'Z') return 'alphabet';
+        if(char >= 'a' && char <= 'z') return 'alphabet';
+        if(!isNaN(char)) return 'number';
+        return 'other';      
+      }
+
+      function updatepathCirclesToShape(pathEl) {
+
+        let pathD = '';
+        // xyPoints.forEach((pt, index)=>{
+        //   pathD += `${pt.type} ${pt.x} ${pt.y} `;
+        // });
+        // pathPoints.setAttribute('d', pathD.trim());
+        // console.log(pathD);
+
+        for(let i = 0; i < xyPoints.length; i++) {
+          const pt = xyPoints[i];
+
+          if(pt.type === 'C' || pt.type === 'S') {
+            pathD += `${pt.type} ${pt.x} ${pt.y} ${xyPoints[i + 1].x} ${xyPoints[i + 1].y} ${xyPoints[i + 2].x} ${xyPoints[i + 2].y} `;
+            i += 2;
+            continue;
+          }
+
+          if(pt.type === 'Q' || pt.type === 'T') {
+            pathD += `${pt.type} ${pt.x} ${pt.y} ${xyPoints[i + 1].x} ${xyPoints[i + 1].y} `;
+            i += 1;
+            continue;
+          }
+          
+          pathD += `${pt.type} ${pt.x} ${pt.y} `;
+        }
+
+        pathPoints.setAttribute('d', pathD.trim());
+        
+      }
+
       /********************* Utility Functions **************************/
 
 
@@ -78,15 +116,25 @@
 
       // Calculate Points
       pathData.forEach((pd)=>{
-        points.push(...pd.values);        
+        points.push(pd.type, ...pd.values);
       });
 
       // XY Points Array
       const xyPoints = [];
-      for (let i = 0; i < points.length; i += 2) {
-        xyPoints.push({ x: points[i], y: points[i + 1] });
+      let pointType = '';
+      let targetPoints2 = 0; 
+      for (let i = 0; i < points.length; i++) {
+
+        const charType = checkCharType(points[i]);
+        if(charType === 'alphabet') pointType = points[i];
+
+        if(charType === 'number') {
+          xyPoints.push({ x: points[i], y: points[i + 1], type: pointType});
+          i++;
+        }
+        
       }
-      
+    
       // UI Rendering
       const pathCirclesD = getCirclesPathD(xyPoints, 8, { fill: '#f88', stroke: '#b00', 'stroke-width': 1 });
       circlesPath.setAttribute('d', pathCirclesD);
@@ -126,11 +174,12 @@
           const { x, y } = svgP;
 
           // Update point position
-          xyPoints[activeIndex] = { x, y };
+          Object.assign(xyPoints[activeIndex], { x, y });
 
           // Re-render circles path
           const updatedD = getCirclesPathD(xyPoints, 8, { fill: '#f88', stroke: '#b00', 'stroke-width': 1 });
           circlesPath.setAttribute('d', updatedD);
+          updatepathCirclesToShape();
         }
       });
 
