@@ -16,17 +16,16 @@
 
     
       <svg id="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-        <path
-          d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z" />
-          
+        <path id="pathPoints"
+          d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z" />    
+        <path id="circlesPath" fill="red" stroke="transparent" stroke-width="0" />      
       </svg>
-      
-    
 
     <script>
 
+      /********************* Utility Functions **************************/
       
-      function createCirclesPath(points, r = 6, attrs = {}) {
+      function getCirclesPathD(points, r = 6, attrs = {}) {
         if (!Array.isArray(points) || points.length === 0) {
           throw new Error('points must be a non-empty array of {x,y} objects');
         }
@@ -39,25 +38,42 @@
           return `M ${cx} ${cy} m -${r} 0 a ${r} ${r} 0 1 0 ${2*r} 0 a ${r} ${r} 0 1 0 -${2*r} 0`;
         }).join(' ');
 
-        const svgns = 'http://www.w3.org/2000/svg';
-        const path = document.createElementNS(svgns, 'path');
-        path.setAttribute('d', d);
-
-        // sensible default styling if user didn't provide
-        if (!('fill' in attrs)) path.setAttribute('fill', 'transparent');
-        if (!('stroke' in attrs)) path.setAttribute('stroke', '#333');
-        if (!('stroke-width' in attrs)) path.setAttribute('stroke-width', '1.2');
-
-        // apply any provided attributes
-        Object.keys(attrs).forEach(k => path.setAttribute(k, attrs[k]));
-
-        return path;
+        return d;
       }
+
+      function getClickedPointIndexFromEvent(event, svg, points, radius = 8) {
+        // Convert mouse coordinates to SVG space
+        const pt = svg.createSVGPoint();
+        pt.x = event.clientX;
+        pt.y = event.clientY;
+        const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+        const { x, y } = svgP;
+
+        // Loop through points to find which one was clicked
+        for (let i = 0; i < points.length; i++) {
+          const dx = points[i].x - x;
+          const dy = points[i].y - y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist <= radius) return i; // clicked inside circle
+        }
+        return -1; // no match
+      }
+
+      /********************* Utility Functions **************************/
+
+
+
+
+
+
+
+      /********************* Points Render **************************/
 
       // Reference Elements
       const svgEl = document.querySelector('#svg');
-      const pathEl = document.querySelector('path');
-      const pathData = pathEl.getPathData();
+      const pathPoints = document.querySelector('#pathPoints');
+      const circlesPath = document.querySelector('#circlesPath');
+      const pathData = pathPoints.getPathData();
       const points = [];
 
       // Calculate Points
@@ -72,12 +88,30 @@
       }
       
       // UI Rendering
-      const circlesPath = createCirclesPath(xyPoints, 8, { fill: '#f88', stroke: '#b00', 'stroke-width': 1 });
-      svgEl.appendChild(circlesPath);
+      const pathCirclesD = getCirclesPathD(xyPoints, 8, { fill: '#f88', stroke: '#b00', 'stroke-width': 1 });
+      circlesPath.setAttribute('d', pathCirclesD);
+      
 
+      /********************* Points Render **************************/
       
+
+
+
+
+
+
+      /********************* Points Control **************************/
+      svgEl.addEventListener('click', (e)=>{
+        const rect = svgEl.getBoundingClientRect();        
+        const pointIndex = getClickedPointIndexFromEvent(e, svgEl, xyPoints, 8);
+        if(pointIndex !== -1){
+          console.log('Clicked Point Index:', pointIndex);
+        } else {
+          console.log('No point clicked');
+        }
+      });
       
-      
+      /********************* Points Control **************************/
       
   </script>
 
